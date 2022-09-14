@@ -1,0 +1,329 @@
+<Plugin OnCommand = "%xero(function(self)
+	function mod_ease(beat, len, str1, str2, mod, t, eas, pn, sus, opt1, opt2)
+		if t == 'end' then len = len - beat end
+		set {beat, str1, mod, plr = pn}
+		ease {beat, len, eas, str2, mod, plr = pn}
+		-- intentionally ignore sus, opt1, opt2
+	end
+
+	function mod_perframe(start_beat, end_beat, f)
+		func {start_beat, end_beat, f, mode = 'end'}
+	end
+
+	function mod_message(beat, msg, p)
+		func {
+			beat,
+			function(actual_beat)
+				if actual_beat < beat + 1
+					or p == true
+					or (type(p) == 'number' and actual_beat < p + beat)
+						then
+					if type(msg) == 'string' then
+						SCREENMAN:SystemMessage(msg)
+					else
+						msg()
+					end
+				end
+			end
+		}
+	end
+	
+	
+	SineS, CubicS, QuintS, CircS, ElasticS, QuadS, QuartS, ExpoS, BackS, BounceS,
+	SineO, CubicO, QuintO, CircO, ElasticO, QuadO, QuartO, ExpoO, BackO, BounceO,
+	SineI, CubicI, QuintI, CircI, ElasticI, QuadI, QuartI, ExpoI, BackI, BounceI  
+	= inOutSine, inOutCubic, inOutQuint, inOutCirc, inOutElastic, inOutQuad, inOutQuart, inOutExpo, inOutBack, inOutBounce,
+	outSine, outCubic, outQuint, outCirc, outElastic, outQuad, outQuart, outExpo, outBack, outBounce,
+	inSine, inCubic, inQuint, inCirc, inElastic, inQuad, inQuart, inExpo, inBack, inBounce
+	
+	--mix ease
+	function mixEase(e1, e2, point)
+		if not point then point = 0.5 end
+
+		return function(a)
+			if a < point then
+				return e1(a / point) * point
+			else
+				return e2((a - point) / (1 - point)) * (1 - point) + point
+			end
+		end
+	end
+	
+	--smooth ease
+	function ease_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		ease {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod, plr = pn}
+	end
+	
+	--smooth add
+	function add_smooth(beat,len,amount,mod,inEase,outEase,point,pn)
+		add {beat-(len*point),len, mixEase(xero['in'..inEase],xero['out'..outEase],point), amount, mod, plr = pn}
+	end
+	
+	--mod bounce
+	function mod_bounce(beat,length,start,apex,mod,outEase,inEase,pn)
+		mod_ease(beat, (length/2), start, apex, tostring(mod), 'len', xero['out'..outEase],pn)
+		mod_ease(beat+(length/2), (length/2), apex, start, tostring(mod), 'len', xero['in'..inEase],pn)
+	end
+	
+	--mod kick
+	function mod_kick(beat,length,start,apex,mod,inEase,outEase,pn)
+		local off = length/2
+		mod_ease(beat - off, (length/2), start, apex, tostring(mod), 'len', xero['in'..inEase],pn)
+		mod_ease((beat+(length/2)) - off, (length/2), apex, start, tostring(mod), 'len', xero['out'..outEase],pn)
+	end
+	
+	--wiggles
+	function wiggle(beat, length, step, ease_func, percent, mod, plr)
+		if length > step then
+			local val = -1
+			for i = beat, beat + length - step, step do
+				if i == beat then
+					add {i, step, ease_func, percent, mod, plr = plr}
+				elseif i > beat + length - 2 * step then
+					add {i, step, ease_func, percent * val, mod, plr = plr}
+				else
+					add {i, step, ease_func, percent * 2 * val, mod, plr = plr}
+					val = -val
+				end
+			end
+		end
+	end
+	
+	--drivendrop
+	function drivendrop(beat, length, step, speedmod, plr)
+		for i = beat, beat + length - step, step do
+			add
+			{i, step, linear, speedmod * step * 100, 'centered2', plr = plr}
+			{i + step, 0, instant, -speedmod * step * 100, 'centered2', plr = plr}
+		end
+	end
+	
+	--sugarkiller
+	function sugarkiller(beat, length, step, minstealth, maxstealth, plr)
+		if not minstealth then minstealth = 50 end;
+		if not maxstealth then maxstealth = 85 end;
+		if not step then step = 1 end;
+		if not length then length = 1 end;
+		for i = 0, math.max(length-1,0) do
+			ease
+			{beat+(i*0.5), .25/step, instant, 100, 'invert', 0, 'flip', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.25/step, .25/step, instant, 100, 'flip', 0, 'invert', maxstealth, 'stealth', plr = plr}
+			{beat+(i*0.5)+.50/step, .25/step, instant, 100, 'flip', -100, 'invert', maxstealth, 'stealth', plr = plr}
+			if i == math.max(length-1,0) then
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', 0, 'stealth', plr = plr}
+			else
+				ease
+				{beat+(i*0.5)+.75/step, .25/step, instant, 0, 'flip', 0, 'invert', minstealth, 'stealth', plr = plr}
+			end
+		end
+	end
+	
+	
+	--beat mods
+	function BeatX(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beat', plr = pn}
+		set {beat+.5, 0, 'beat', plr = pn}
+	end
+	
+	function BeatY(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beaty', plr = pn}
+		set {beat+.5, 0, 'beaty', plr = pn}
+	end
+	
+	
+	function BeatZ(beat,strength,pn)
+	if not strength then strength = 1000 end;
+		set {beat-.5, strength, 'beatz', plr = pn}
+		set {beat+.5, 0, 'beatz', plr = pn}
+	end
+	
+	function ease2 (beat,length,eas,amount,mod,pn)	
+		ease{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function add2 (beat,length,eas,amount,mod,pn)	
+		add{beat-(length/2),length,eas,amount,mod,plr = pn}
+	end
+	
+	function ease3 (beat,length,eas,amount,mod,point,pn)	
+		ease{beat-(length*point),length,mixEase(xero['in'..eas],xero['out'..eas],point),amount,mod,plr = pn}
+	end
+	
+	function add3 (beat,length,eas,amount,mod,point,pn)	
+		add{beat-(length*point),length,mixEase(xero['in'..eas],xero['out'..eas],point),amount,mod,plr = pn}
+	end
+	
+	
+	function centered2scroll(beat,resetbeat,len,eas,amt,plr)
+		ease {beat, len, eas, amt * 100, 'centered2', plr = pn}
+		ease {beat, len, eas, -amt * 100, 'movey', plr = pn}
+		
+		ease {resetbeat, 1, instant, 0, 'centered2', plr = pn}
+		ease {resetbeat, 1, instant, 0, 'movey', plr = pn}
+	end
+	
+	
+	function texture(texturename,size1,size2,xvelocity,yvelocity)
+		texturename:xywh(scx,scy,sw,sh)
+		texturename:customtexturerect(0,0,size1,size2)
+		texturename:texcoordvelocity(xvelocity,yvelocity)
+	end
+	
+	function shader(spritename,aftname)
+		spritename:SetTexture(aftname:GetTexture())
+	end
+	
+	function centerPlr(beat)
+		func{beat,function()
+			for pn = 1,2 do
+				P[pn]:x(SCREEN_CENTER_X)
+			end
+		end}
+	end
+	
+	function uncenterPlr(beat)
+		func{beat,function()
+			P1:x(SCREEN_CENTER_X - (sw / 4))
+			P2:x(SCREEN_CENTER_X + (sw / 4))
+		end}
+	end
+	
+	function imageSetup(imagename)
+		imagename:xywh(scx,scy,sw,sh)
+	end
+	
+	function kick(Beat,inLen,outLen,inEase,outEase,Start,Apex,mod,pn)
+		set{Beat-inLen,Start,mod}
+		ease{Beat-inLen,inLen,xero['in'..inEase],Apex,mod,plr=pn}
+		ease{Beat,outLen,xero['out'..outEase],Start,mod,plr=pn}
+	end
+	
+	
+	function arrowDirection(Beat,EaseLen,Ease,Which)
+		if Which == 'Left' then
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset0'}
+			ease {Beat, EaseLen, Ease, 628/4, 'confusionoffset1'}
+			ease {Beat, EaseLen, Ease, -628/4, 'confusionoffset2'}
+			ease {Beat, EaseLen, Ease, -628/2, 'confusionoffset3'}
+		elseif Which == 'Down' then
+			ease {Beat, EaseLen, Ease, -628/4, 'confusionoffset0'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset1'}
+			ease {Beat, EaseLen, Ease, 628/2, 'confusionoffset2'}
+			ease {Beat, EaseLen, Ease, 628/4, 'confusionoffset3'}
+		elseif Which == 'Up' then
+			ease {Beat, EaseLen, Ease, 628/4, 'confusionoffset0'}
+			ease {Beat, EaseLen, Ease, 628/2, 'confusionoffset1'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset2'}
+			ease {Beat, EaseLen, Ease, -628/4, 'confusionoffset3'}
+		elseif Which == 'Right' then
+			ease {Beat, EaseLen, Ease, 628/2, 'confusionoffset0'}
+			ease {Beat, EaseLen, Ease, -628/4, 'confusionoffset1'}
+			ease {Beat, EaseLen, Ease, 628/4, 'confusionoffset2'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset3'}
+		elseif Which == 'Normal' then
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset0'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset1'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset2'}
+			ease {Beat, EaseLen, Ease, 0, 'confusionoffset3'}
+		end
+	
+	end
+	
+	function shake(beat,len,percent,mod,pn)
+		ease{beat,len,popElastic.params(1,25),percent,mod, plr = pn}
+	end
+	
+	------------------------------------------------ definemod stuff -------------------------------------------------------
+	--blacksphere
+	definemod {'blacksphere',function(blacksphere)
+        local invert = 50 - 50 * math.cos(blacksphere * math.pi / 180)
+        local alternate = 25 * math.sin(blacksphere * math.pi / 180)
+        local reverse = -12.5 * math.sin(blacksphere * math.pi / 180)
+        return invert, alternate, reverse
+    end,
+    'invert', 'alternate', 'reverse',
+	}
+	
+	--counterrotation mod (thanks mang)
+	definemod{'rotationx2','rotationy2','rotationz2',function(xDegrees, yDegrees, zDegrees, plr)
+		local function mindf_reverseRotation(angleX, angleY, angleZ)
+			local sinX = math.sin(angleX);
+			local cosX = math.cos(angleX);
+			local sinY = math.sin(angleY);
+			local cosY = math.cos(angleY);
+			local sinZ = math.sin(angleZ);
+			local cosZ = math.cos(angleZ);
+			return { math.atan2(-cosX*sinY*sinZ-sinX*cosZ,cosX*cosY),
+					math.asin(-cosX*sinY*cosZ+sinX*sinZ),
+					math.atan2(-sinX*sinY*cosZ-cosX*sinZ,cosY*cosZ) }
+		end
+		local DEG_TO_RAD = math.pi / 180
+		local angles = mindf_reverseRotation(xDegrees * DEG_TO_RAD, yDegrees * DEG_TO_RAD, zDegrees * DEG_TO_RAD)
+		local rotationx,rotationy,rotationz=
+			xDegrees,
+			yDegrees,
+			zDegrees
+		local confusionxoffset,confusionyoffset,confusionzoffset=
+			(angles[1]*100),
+			(angles[2]*100),
+			(angles[3]*100)
+	
+		return rotationx,rotationy,rotationz,confusionxoffset,confusionyoffset,confusionzoffset
+	end,
+	'rotationx','rotationy','rotationz','confusionxoffset','confusionyoffset','confusionzoffset'
+	}
+	
+	
+	definemod{'walk', function(amt)
+    amt = amt * 0.01
+		local invert = -(math.cos((amt*100)*math.pi)*50)+50
+		local alternate = (math.sin((amt*100)*math.pi)*25)*1
+		local reverse = (math.sin((amt*100)*math.pi)*25/2)*-1
+		local movey = math.abs(math.sin((amt*100)*math.pi)*50)*-1
+			return invert, alternate, reverse, movey
+	end, 'invert', 'alternate', 'reverse', 'movey'}
+	
+	definemod {'coolreverse', function(r)
+			return r,r,r,r
+		end,
+		'reverse0','reverse1','reverse2','reverse3'
+	}
+	
+	definemod {'coolskewx', function(p)
+			return p,-p
+		end,
+		'skewx','noteskewx'
+	}
+	
+	definemod {'coolskewy', function(p)
+			return p,-p
+		end,
+		'skewy','noteskewy'
+	}
+	
+	definemod {'pieces', function(p)
+			return p,p,-p/4
+		end,
+		'hidden','brake','hiddenoffset'
+	}
+	
+	definemod {'speenoffset','speen',function(speenoffset,speen)
+        local movex0 = (speenoffset)*math.sin((math.pi*2*(0/4)) + speen*math.pi)
+		local movex1 = (speenoffset)*math.sin((math.pi*2*(1/4)) + speen*math.pi)
+		local movex2 = (speenoffset)*math.sin((math.pi*2*(2/4)) + speen*math.pi)
+		local movex3 = (speenoffset)*math.sin((math.pi*2*(3/4)) + speen*math.pi)
+		
+		local movez0 = (speenoffset)*math.cos((math.pi*2*(0/4)) + speen*math.pi)
+		local movez1 = (speenoffset)*math.cos((math.pi*2*(1/4)) + speen*math.pi)
+		local movez2 = (speenoffset)*math.cos((math.pi*2*(2/4)) + speen*math.pi)
+		local movez3 = (speenoffset)*math.cos((math.pi*2*(3/4)) + speen*math.pi)
+        return movex0,movex1,movex2,movex3,movez0,movez1,movez2,movez3
+    end,
+    'movex0', 'movex1', 'movex2','movex3','movez0', 'movez1', 'movez2','movez3'
+	}
+	
+	
+end)" />

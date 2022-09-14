@@ -1,0 +1,126 @@
+<Layer Type = "ActorFrame" ><children>
+
+
+
+	<!--<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="WarningAFT"/>-->
+	<Layer Type = "Quad" Name = "Batman" />
+	<Layer Type = "ActorFrame" Name = "BG" InitCommand="fov, 45"><children>
+		<Layer Name = "Background" File = "../images/ITGbg empty.png"/>
+		<Layer Name = "BGinthe" File = "../images/in the.png"/>
+		<Layer Name = "BGgroove" File = "../images/groove.png"/>
+		<Layer Name = "BGitsallabout" File = "../images/its all about.png"/>
+		<Layer Name = "BGhumanity" File = "../images/humanity.png"/>
+		<Layer Type = "ActorFrame" Name = "BGTextBits"><children>
+			<Layer Name = "BGBits" File = "../images/its.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBall" File = "../images/all.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBa" File = "../images/a.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBbout" File = "../images/bout.png" InitCommand="zbuffer, 1"/>
+
+			<Layer Name = "BGBhu" File = "../images/hu.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBman" File = "../images/man.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBi" File = "../images/i.png" InitCommand="zbuffer, 1"/>
+			<Layer Name = "BGBty" File = "../images/ty.png" InitCommand="zbuffer, 1"/>
+		</children></Layer>
+	</children></Layer>
+	<Layer Type="Quad" OnCommand="clearzbuffer,1;blend,noeffect"/>
+	<Layer Type = "Quad" Name = "ChromaQuad2" />
+	<Layer Type = "ActorFrame" Name = "Warning"> <children>
+		<Layer Name = "Strip1" File = "../images/warning1.png"/>
+		<Layer Name = "Strip2" File = "../images/warning1.png"/>
+		<Layer Name = "Caution" File = "../images/warning2.png"/>
+	</children></Layer>
+	<Layer Type = "ActorProxy" Name = "WS[1]" />
+	<Layer Type = "ActorProxy" Name = "WS[2]" />
+	<!--<Layer Type = "Quad" Name = "TempQuad" />-->
+	<!--<Layer Type="Sprite" InitCommand="%xero.sprite" Name="WarningAFTS"/>-->
+
+	<Layer Type = "Quad" Name = "BGQuad" />
+	<Layer Type = "ActorFrame" Name = "PostPolish"><children>
+		<Layer Type = "ActorProxy" Name = "PC[1]" />
+		<Layer Type = "ActorProxy" Name = "PC[2]" />
+		<Layer Type = "ActorProxy" Name = "PJ[1]" />
+		<Layer Type = "ActorProxy" Name = "PJ[2]" />
+		<Layer Type = "ActorProxy" Name = "AP[1]" />
+		<Layer Type = "ActorProxy" Name = "AP[2]" />
+		<Layer Type = "ActorProxy" Name = "PP[1]" />
+		<Layer Type = "ActorProxy" Name = "PP[2]" />
+		<Layer Type = "ActorProxy" Name = "PPP[1]" />
+		<Layer Type = "ActorProxy" Name = "PPP[2]" />
+	</children></Layer>
+
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="PPPAFT"/>
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="TAFT[1]"/>
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="TAFT[2]"/>
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="TAFT[3]"/>
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="TAFT[4]"/>
+	<Layer Type = "Quad" Name = "TempQuad" />
+	<Layer Type = "ActorFrame" Name = "welp" InitCommand="fov, 45"><children>
+		<Layer Type="Sprite" InitCommand="%xero.sprite" Name="PPPAFTS"/>
+		<Layer Type="Sprite" InitCommand="%xero.sprite" Name="TAFTS[1]"/>
+		<Layer Type="Sprite" InitCommand="%xero.sprite" Name="TAFTS[2]"/>
+		<Layer Type="Sprite" InitCommand="%xero.sprite" Name="TAFTS[3]"/>
+		<Layer Type="Sprite" InitCommand="%xero.sprite" Name="TAFTS[4]"/>
+		<!-- WAIT THAT JUST WORKS?!?! -->
+		<Layer Type = "ActorFrame" Name = "PostPolishProxyParent"><children>
+			<Layer Type = "ActorProxy" Name = "PostPolishProxy[1]" />
+			<Layer Type = "ActorProxy" Name = "PostPolishProxy[2]" />
+			<Layer Type = "ActorProxy" Name = "PostPolishProxy[3]" />
+			<Layer Type = "ActorProxy" Name = "PostPolishProxy[4]" />
+		</children></Layer>
+	</children></Layer>
+
+	<!-- Lmao, in case you wanted to know what I was *going* to do before not being an idiot.
+	<Layer Type = "ActorFrame" Name = "Texting"><children>
+		<Layer File="../models/text-1-its.obj.txt" Name = "Text[1]" />
+		<Layer File="../models/text-2-all.obj.txt" Name = "Text[2]" />
+		<Layer File="../models/text-3-about.obj.txt" Name = "Text[3]" />
+		<Layer File="../models/text-4-humanity.obj.txt" Name = "Text[4]" />
+	</children></Layer>-->
+
+	<Layer Type="Actor"
+		Frag="../shaders/glitch.frag"
+		OnCommand="%function( self )
+		glitch = self:GetShader()
+		end"
+	/>
+
+	<Layer Type="Actor"
+ 		Frag="../shaders/idkshadersorsomething.frag"
+ 		OnCommand="%function( self )
+ 		tilesplz = self:GetShader()
+ 		end"
+ 	/>
+
+	<Layer Type="Actor"
+ 		Frag="../shaders/idkshadersorsomething.frag"
+ 		OnCommand="%function( self )
+ 		tilesplz1 = self:GetShader()
+ 		end"
+ 	/>
+
+	<Layer Type="Actor"
+ 		Frag="../shaders/idkshadersorsomething.frag"
+ 		OnCommand="%function( self )
+ 		tilesplz2 = self:GetShader()
+ 		end"
+ 	/>
+
+	<Layer Type="Actor"
+ 		Frag="../shaders/idkshadersorsomething.frag"
+ 		OnCommand="%function( self )
+ 		tilesplz3 = self:GetShader()
+ 		end"
+ 	/>
+
+	<Layer Type="Actor"
+ 		Frag="../shaders/idkshadersorsomething.frag"
+ 		OnCommand="%function( self )
+ 		tilesplz4 = self:GetShader()
+ 		end"
+ 	/>
+
+	<Layer Type="ActorFrameTexture" InitCommand="%xero.aft" Name="AFT"/>
+	<Layer Type="Sprite" InitCommand="%xero.sprite" Name="AFTSprite"/>
+
+	<Layer File="../images/load.png" Name="Load"/>
+</children></Layer>

@@ -1,0 +1,18 @@
+<Plugin Author="Sudospective" Version="1.0" LoadCommand="%xero(function(self)
+
+	function inverseEase(easefunc)
+		return function(t) return inverse(easefunc(t)) end
+	end
+
+	inverseSine = inverseEase(inOutSine)
+	inverseQuad = inverseEase(inOutQuad)
+	inverseCubic = inverseEase(inOutCubic)
+	inverseQuart = inverseEase(inOutQuart)
+	inverseQuint = inverseEase(inOutQuint)
+	inverseExpo = inverseEase(inOutExpo)
+	inverseCirc = inverseEase(inOutCirc)
+	inverseBack = inverseEase(inOutBack)
+	inverseBounce = inverseEase(inOutBounce)
+	inverseElastic = inverseEase(inOutElastic)
+
+end)" />
