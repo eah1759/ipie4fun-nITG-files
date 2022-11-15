@@ -179,7 +179,7 @@ end}
 definemod {'gridScrollx', function(p)
 	gridScrollx(p/100)
 	for pppn = 1, 4 do
-		PostPolishProxy[pppn]:x(((((-sw)*(p/100))+(sw/2))%sw)-((1+(2*(pppn%2)))*(sw/2)))
+		PostPolishProxy[pppn]:x(((((-sw)*(p/100))+(sw))%sw)-(((2*(pppn%2)))*(sw/2)))
 	end
 end}
 
